@@ -1,17 +1,18 @@
 LLVM passes for compiling Rust code with Emscripten.  The code could use some
 cleanup, but it more or less works.  Currently it appears only
-`-break-struct-arguments` is needed, when compiling with [patched
-emscripten-fastcomp][em-patch].
+`-remove-overflow-checks` and `-remove-assume` are needed.  Otherwise, upstream
+[emscripten-fastcomp][em-fc] (version 1.29.0) works.
 
-[em-patch]: https://github.com/epdtry/emscripten-fastcomp/commit/1331b061fcb813dad71719792a89fa5cc396864a
+[em-fc]: https://github.com/kripken/emscripten-fastcomp/tree/1.29.0
 
 Compile with:
 
-    make BreakStructArguments.so \
+    make RemoveOverflowChecks.so RemoveAssume.so \
         LLVM_PREFIX=.../emscripten-fastcomp/build
 
 Use with:
 
-    .../emscripten-fastcomp/build/bin/opt -load=BreakStructArguments.so \
-        -O3 -break-struct-arguments -globaldce \
+    .../emscripten-fastcomp/build/bin/opt \
+        -load=RemoveOverflowChecks.so -load=RemoveAssume.so \
+        -O3 -remove-overflow-checks -remove-assume -globaldce \
         input.ll -S -o output.ll
